@@ -183,9 +183,19 @@ def update_a_user():
     tags=["Tweets"]
 )
 def home():
-    """Show all tweets."""
-    return {"Twitter API": "Working!"}
+    """
+    This path operation shows all tweets in the app
 
+    Return a json list whit all tweets in the app, with the following keys:
+       - tweet_id: UUID
+       - content: str
+       - created_at: datetime
+       - updated_at: Optional[datetime]
+       - by: User
+    """
+    with open("tweets.json", "r", encoding="utf-8") as f:
+        results = json.loads(f.read())
+        return results
 
 @app.post(
     path="/post",
@@ -216,8 +226,7 @@ def post(tweet: Tweet = Body(...)):
         tweet_dict = tweet.dict()
         tweet_dict["tweet_id"] = str(tweet_dict["tweet_id"])
         tweet_dict["created_at"] = str(tweet_dict["created_at"])
-        if tweet_dict["updated_at"]:
-            tweet_dict["updated_at"] = str(tweet_dict["updated_at"])
+        tweet_dict["updated_at"] = str(tweet_dict["updated_at"])
         tweet_dict["by"]["user_id"] = str(tweet_dict["by"]["user_id"])
         tweet_dict["by"]["birth_date"] = str(tweet_dict["by"]["birth_date"])
 
