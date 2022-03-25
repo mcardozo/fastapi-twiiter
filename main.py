@@ -1,12 +1,13 @@
 """Main module."""
 
 # Python
+import json
 from datetime import date, datetime
 from typing import List, Optional
 from uuid import UUID
 
 # FastAPI
-from fastapi import FastAPI, status
+from fastapi import Body, FastAPI, status
 
 # Pydantic
 from pydantic import BaseModel, EmailStr, Field
@@ -44,6 +45,15 @@ class User(UserBase):
     birth_date: Optional[date] = Field(default=None)
 
 
+class UserRegister(User):
+    """User register model."""
+    password: str = Field(
+        ...,
+        min_length=8,
+        max_length=64
+    )
+
+
 class Tweet(BaseModel):
     """Tweet model."""
     tweet_id: UUID = Field(...)
@@ -65,9 +75,32 @@ class Tweet(BaseModel):
     summary="Register a User",
     tags=["Users"]
 )
-def signup():
-    """Register a user."""
-    pass
+def signup(user: UserRegister = Body(...)):
+    """
+    Signup.
+
+    This path operation register a user in the app.
+
+    Parameters:
+       - Request body parameter
+            - user: UserRegister
+
+    Returns a json with the basic user information:
+       - user_id: UUID
+       - email: Emailstr
+       - first_name: str
+       - last_name: str
+       - birth_date: datetime
+    """
+    with open("users.json", "r+", encoding="utf-8") as f:
+        results = json.loads(f.read())
+        user_dict = user.dict()
+        user_dict["user_id"] = str(user_dict["user_id"])
+        user_dict["birth_date"] = str(user_dict["birth_date"])
+        results.append(user_dict)
+        f.seek(0)
+        f.write(json.dumps(results))
+        return user
 
 
 @app.post(
