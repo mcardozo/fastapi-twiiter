@@ -2,7 +2,7 @@
 
 # Python
 from uuid import UUID
-from datetime import date
+from datetime import date, datetime
 from typing import Optional
 
 # FastAPI
@@ -46,7 +46,15 @@ class User(UserBase):
 
 class Tweet(BaseModel):
     """Tweet model."""
-    pass
+    tweet_id: UUID = Field(...)
+    content: str = Field(
+        ...,
+        min_length=1,
+        max_length=256
+    )
+    created_at: datetime = Field(default=datetime.now())
+    update_at: Optional[datetime] = Field(default=None)
+    by: User = Field(...)
 
 
 @app.get(path='/')
